@@ -34,10 +34,10 @@ All internal services are loopback-bound and never externally routable.
 
 ## Internal Verification
 
-- HMAC-SHA256 tokens
-- 120s TTL
-- Rate limiting
-- No third-party dependency
+- HMAC-SHA256 tokens  
+- 120s TTL  
+- Rate limiting  
+- No third-party dependency  
 
 ---
 
@@ -45,31 +45,32 @@ All internal services are loopback-bound and never externally routable.
 
 Public interfaces are minimal and explicit.  
 Internal services are never externally routable.  
-Trust is established via DNSSEC + DANE rather than proxy delegation.
+Trust is enforced through DNSSEC + DANE rather than proxy delegation.
 
 ---
 
-## Operational Discipline
+## Infrastructure Discipline
 
-- Automated DNSSEC resigning
-- Automated certificate renewal
-- Centralized logging
-- Service isolation
-- Minimal open-port policy
+- Automated DNSSEC resigning  
+- Automated certificate renewal  
+- Centralized logging  
+- Service isolation  
+- Minimal open-port policy  
 
 ---
 
 ## Constraints
 
-- No CDN-based DDoS absorption
-- No global Anycast edge
-- Capacity bound to physical hardware
+- No CDN-based DDoS absorption  
+- No global Anycast edge  
+- Capacity bound to physical hardware  
 
 ---
 
 ## Principle
 
-Security is defined as direct control over every exposed boundary.
+Security is defined as direct control over every exposed boundary.  
+Delegation is minimized; verification remains local.
 
 ---
 
