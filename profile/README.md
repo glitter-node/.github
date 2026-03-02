@@ -13,7 +13,7 @@ Internet
   ↓
 Nginx (TLS)
   ↓
-FastAPI instances (loopback)
+FastAPI (loopback)
   ↓
 DNS / Mail / Captcha / Data
 ```
@@ -22,23 +22,15 @@ All internal services are loopback-bound and never externally routable.
 
 ---
 
-## Architecture
+## Architecture Overview
 
-### Edge
-- Direct TLS negotiation
-- Automated certificate lifecycle
-- Strict security headers
-- No external TLS termination
-
-Public: 80 / 443
-
----
-
-### DNS
-- Self-hosted authoritative BIND
-- Multi-node nameservers
-- Full DNSSEC (KSK/ZSK)
-- DANE / TLSA for SMTP
+| Layer | Model | Exposure |
+|-------|-------|----------|
+| Edge | Direct TLS, strict headers | 80 / 443 |
+| DNS | Authoritative BIND, DNSSEC, DANE | 53 TCP/UDP |
+| Mail | Postfix, DKIM, DMARC, MTA-STS, DANE | 25 / 587 / 993 |
+| App | FastAPI per vHost, systemd sandbox | loopback (8000) |
+| Data | DB / Cache | loopback (3306 / 5432 / 6379) |
 
 Trust chain:
 
@@ -46,32 +38,10 @@ Trust chain:
 Root → TLD → Domain → TLSA → Service
 ```
 
-Public: 53 TCP/UDP
-
 ---
 
-### Mail
-- Postfix + Dovecot
-- SPF / DKIM / DMARC
-- MTA-STS + TLSRPT
-- SMTP DANE enforcement
+## Internal Verification
 
-Public: 25 / 587 / 993
-
----
-
-### Application
-- Independent FastAPI instances per vHost
-- systemd sandbox hardening
-- Loopback-only upstream binding
-
-Internal:
-- 8000 (app)
-- 3306 / 5432 / 6379 (data)
-
----
-
-### Internal Verification
 - HMAC-SHA256 tokens
 - 120s TTL
 - Rate limiting
@@ -83,7 +53,7 @@ Internal:
 
 Public interfaces are minimal and explicit.  
 Internal services are never externally routable.  
-Trust is established through DNSSEC + DANE rather than proxy delegation.
+Trust is established via DNSSEC + DANE rather than proxy delegation.
 
 ---
 
@@ -120,7 +90,6 @@ dig -4 +dnssec +multi glitter.kr SOA
 dig -4 +dnssec +multi glitter.kr DNSKEY
 dig -4 +dnssec +multi glitter.kr DS
 delv -4 +vtrace A glitter.kr
-delv -4 @1.1.1.1 +vtrace DS glitter.kr
 ```
 
 ### DANE / TLSA
@@ -128,8 +97,6 @@ delv -4 @1.1.1.1 +vtrace DS glitter.kr
 ```bash
 dig -4 +dnssec +multi _587._tcp.mail.glitter.kr TLSA
 dig -4 +dnssec +multi _443._tcp.captcha.glitter.kr TLSA
-delv -4 @1.1.1.1 _587._tcp.mail.glitter.kr TLSA
-delv -4 @1.1.1.1 _443._tcp.captcha.glitter.kr TLSA
 ```
 
 ### SMTP / MTA-STS
