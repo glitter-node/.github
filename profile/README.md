@@ -111,3 +111,37 @@ Trust is established through DNSSEC + DANE rather than proxy delegation.
 ## Principle
 
 Security is defined as direct control over every exposed boundary.
+
+---
+
+## Verification Commands
+
+The following commands can be used to validate DNSSEC, DANE, MTA-STS, and TLS negotiation.
+
+```bash
+dig -4 +dnssec +multi glitter.kr SOA
+dig -4 +dnssec +multi glitter.kr DNSKEY
+dig -4 +dnssec +multi glitter.kr DS
+dig -4 +dnssec +multi glitter.kr TXT
+dig -4 +dnssec +multi glitter.kr CAA
+dig -4 +trace glitter.kr @a.root-servers.net
+dig -4 +dnssec +multi _smtp._tls.glitter.kr TXT
+dig -4 +dnssec +multi _587._tcp.mail.glitter.kr TLSA
+dig -4 +dnssec +multi _443._tcp.captcha.glitter.kr TLSA
+dig -4 +dnssec +multi glitter.kr SOA @1.1.1.1
+dig -4 +dnssec +multi glitter.kr DNSKEY @1.1.1.1
+dig -4 +dnssec +multi glitter.kr DS @1.1.1.1
+dig -4 +dnssec +multi _smtp._tls.glitter.kr TXT @1.1.1.1
+dig -4 +dnssec +multi _587._tcp.mail.glitter.kr TLSA @1.1.1.1
+dig -4 +dnssec +multi _443._tcp.captcha.glitter.kr TLSA @1.1.1.1
+dig -4 +dnssec +multi +nocmd +noall +answer +comments glitter.kr A
+dig -4 +dnssec +multi glitter.kr DS @203.248.252.2
+dig -4 +dnssec +multi _mta-sts.glitter.kr TXT
+delv -4 +vtrace A glitter.kr
+delv -4 nonexistent123.glitter.kr A
+delv -4 @1.1.1.1 +vtrace DS glitter.kr
+delv -4 @1.1.1.1 _587._tcp.mail.glitter.kr TLSA
+delv -4 @1.1.1.1 _443._tcp.captcha.glitter.kr TLSA
+curl -s https://mta-sts.glitter.kr/.well-known/mta-sts.txt
+openssl s_client -starttls smtp -connect smtp.glitter.kr:587 -servername smtp.glitter.kr -brief < /dev/null
+```
