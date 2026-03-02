@@ -1,8 +1,6 @@
 # Glitter Node
 
-Self-operated infrastructure on physical hardware with explicit exposure control and DNSSEC-based trust verification.
-
-No external CDN, reverse proxy, or third-party TLS gateway is used.
+Self-operated infrastructure on physical hardware with explicit exposure control and DNSSEC-based trust verification, without external CDN or proxy delegation.
 
 ---
 
@@ -31,12 +29,6 @@ All internal services are loopback-bound and never externally routable.
 | Mail | Postfix, DKIM, DMARC, MTA-STS, DANE | 25 / 587 / 993 |
 | App | FastAPI per vHost, systemd sandbox | loopback (8000) |
 | Data | DB / Cache | loopback (3306 / 5432 / 6379) |
-
-Trust chain:
-
-```
-Root → TLD → Domain → TLSA → Service
-```
 
 ---
 
@@ -84,7 +76,6 @@ Security is defined as direct control over every exposed boundary.
 ## Verification Commands
 
 ### DNSSEC
-
 ```bash
 dig -4 +dnssec +multi glitter.kr SOA
 dig -4 +dnssec +multi glitter.kr DNSKEY
@@ -93,14 +84,12 @@ delv -4 +vtrace A glitter.kr
 ```
 
 ### DANE / TLSA
-
 ```bash
 dig -4 +dnssec +multi _587._tcp.mail.glitter.kr TLSA
 dig -4 +dnssec +multi _443._tcp.captcha.glitter.kr TLSA
 ```
 
 ### SMTP / MTA-STS
-
 ```bash
 dig -4 +dnssec +multi _mta-sts.glitter.kr TXT
 curl -s https://mta-sts.glitter.kr/.well-known/mta-sts.txt
